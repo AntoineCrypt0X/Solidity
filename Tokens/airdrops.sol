@@ -6,7 +6,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract AirDrop is Ownable {
 
-    // Contract address of the staked token
+    // Contract address of the airdrop token
     IERC20 public immutable airdropToken;
 
     constructor(address _airdropToken) Ownable(msg.sender) {
