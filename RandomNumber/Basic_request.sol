@@ -1,87 +1,116 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.7;
+// An example of a consumer contract that relies on a subscription for funding.
+pragma solidity 0.8.19;
 
-import "@chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol";
-import "@chainlink/contracts/src/v0.8/VRFConsumerBaseV2.sol";
+import {VRFConsumerBaseV2Plus} from "@chainlink/contracts@1.2.0/src/v0.8/vrf/dev/VRFConsumerBaseV2Plus.sol";
+import {VRFV2PlusClient} from "@chainlink/contracts@1.2.0/src/v0.8/vrf/dev/libraries/VRFV2PlusClient.sol";
 
+/**
+ * Request testnet LINK and ETH here: https://faucets.chain.link/
+ * Find information on LINK Token Contracts and get the latest ETH and LINK faucets here: https://docs.chain.link/docs/link-token-contracts/
+ */
 
-contract RandomNumberConsumerV2 is VRFConsumerBaseV2 {
+/**
+ * THIS IS AN EXAMPLE CONTRACT THAT USES HARDCODED VALUES FOR CLARITY.
+ * THIS IS AN EXAMPLE CONTRACT THAT USES UN-AUDITED CODE.
+ * DO NOT USE THIS CODE IN PRODUCTION.
+ */
 
-    event ReturnedRandomness(uint256[] randomWords);
+contract SubscriptionConsumer is VRFConsumerBaseV2Plus {
     event RequestSent(uint256 requestId, uint32 numWords);
-    event RequestFulfilled(uint256 requestId, uint256 randomWord);
+    event RequestFulfilled(uint256 requestId, uint256[] randomWords);
 
     struct RequestStatus {
         bool fulfilled; // whether the request has been successfully fulfilled
         bool exists; // whether a requestId exists
-        uint256 randomWord;
+        uint256[] randomWords;
     }
     mapping(uint256 => RequestStatus) public s_requests; /* requestId --> requestStatus */
 
-    VRFCoordinatorV2Interface immutable COORDINATOR;
+    // Your subscription ID.
+    uint256 public s_subscriptionId;
 
-    uint64 immutable s_subscriptionId;
-
-    bytes32 immutable s_keyHash;
-
-    uint32 constant CALLBACK_GAS_LIMIT = 100000;
-
-    uint16 constant REQUEST_CONFIRMATIONS = 3;
-
-    uint32 constant NUM_WORDS = 1;
-
-    uint256[] public s_randomWords;
-    
-    uint256 public requestId;
-    address s_owner;
+    // Past request IDs.
     uint256[] public requestIds;
     uint256 public lastRequestId;
 
+    // The gas lane to use, which specifies the maximum gas price to bump to.
+    // For a list of available gas lanes on each network,
+    // see https://docs.chain.link/docs/vrf/v2-5/supported-networks
+    bytes32 public keyHash = 0x719ed7d7664abc3001c18aac8130a2265e1e70b7e036ae20f3ca8b92b3154d86;
+
+    // Depends on the number of requested values that you want sent to the
+    // fulfillRandomWords() function. Storing each word costs about 20,000 gas,
+    // so 100,000 is a safe default for this example contract. Test and adjust
+    // this limit based on the network that you select, the size of the request,
+    // and the processing of the callback request in the fulfillRandomWords()
+    // function.
+    uint32 public callbackGasLimit = 100000;
+
+    // The default is 3, but you can set this higher.
+    uint16 public requestConfirmations = 3;
+
+    // For this example, retrieve 2 random values in one request.
+    // Cannot exceed VRFCoordinatorV2_5.MAX_NUM_WORDS.
+    uint32 public numWords = 2;
+
+    /**
+     * HARDCODED FOR SEPOLIA
+     * COORDINATOR: 0x9DdfaCa8183c41ad55329BdeeD9F6A8d53168B1B
+     */
     constructor(
-        uint64 subscriptionId,
-        address vrfCoordinator,
-        bytes32 keyHash
-    ) VRFConsumerBaseV2(vrfCoordinator) {
-        COORDINATOR = VRFCoordinatorV2Interface(vrfCoordinator);
-        s_keyHash = keyHash;
-        s_owner = msg.sender;
+        uint256 subscriptionId
+    ) VRFConsumerBaseV2Plus(0xec0Ed46f36576541C75739E915ADbCb3DE24bD77) {
         s_subscriptionId = subscriptionId;
     }
 
-    function requestRandomWords() external returns(uint256) {
-       requestId = COORDINATOR.requestRandomWords(
-            s_keyHash,
-            s_subscriptionId,
-            REQUEST_CONFIRMATIONS,
-            CALLBACK_GAS_LIMIT,
-            NUM_WORDS
+    // Assumes the subscription is funded sufficiently.
+    // @param enableNativePayment: Set to `true` to enable payment in native tokens, or
+    // `false` to pay in LINK
+    function requestRandomWords(
+        bool enableNativePayment
+    ) external onlyOwner returns (uint256 requestId) {
+        // Will revert if subscription is not set and funded.
+        requestId = s_vrfCoordinator.requestRandomWords(
+            VRFV2PlusClient.RandomWordsRequest({
+                keyHash: keyHash,
+                subId: s_subscriptionId,
+                requestConfirmations: requestConfirmations,
+                callbackGasLimit: callbackGasLimit,
+                numWords: numWords,
+                extraArgs: VRFV2PlusClient._argsToBytes(
+                    VRFV2PlusClient.ExtraArgsV1({
+                        nativePayment: enableNativePayment
+                    })
+                )
+            })
         );
-
-         s_requests[requestId] = RequestStatus({
-            randomWord:0,
+        s_requests[requestId] = RequestStatus({
+            randomWords: new uint256[](0),
             exists: true,
             fulfilled: false
         });
         requestIds.push(requestId);
         lastRequestId = requestId;
-        emit RequestSent(requestId, NUM_WORDS);
-
+        emit RequestSent(requestId, numWords);
         return requestId;
     }
 
-    function fulfillRandomWords(uint256 requestId, uint256[] memory randomWords) internal override
-    {
-        require(s_requests[requestId].exists, "request not found");
-        s_requests[requestId].fulfilled = true;
-        uint256 randomNumber=randomWords[0];
-        s_requests[requestId].randomWord = randomNumber;
-        emit RequestFulfilled(requestId,randomNumber);
+    function fulfillRandomWords(
+        uint256 _requestId,
+        uint256[] calldata _randomWords
+    ) internal override {
+        require(s_requests[_requestId].exists, "request not found");
+        s_requests[_requestId].fulfilled = true;
+        s_requests[_requestId].randomWords = _randomWords;
+        emit RequestFulfilled(_requestId, _randomWords);
     }
 
-    function getRequestStatus(uint256 _requestId) external view returns (bool fulfilled, uint256  randomWord) {
+    function getRequestStatus(
+        uint256 _requestId
+    ) external view returns (bool fulfilled, uint256[] memory randomWords) {
         require(s_requests[_requestId].exists, "request not found");
         RequestStatus memory request = s_requests[_requestId];
-        return (request.fulfilled, request.randomWord);
-    }   
-    
+        return (request.fulfilled, request.randomWords);
+    }
 }
