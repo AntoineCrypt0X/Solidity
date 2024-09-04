@@ -10,7 +10,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
     Lottery: ticket=0.01 ether. A random number is drawn to set the winner
  */
 
-contract Raffle is VRFConsumerBaseV2Plus {
+contract Lottery is VRFConsumerBaseV2Plus {
 
     address payable[] public players;
     uint256 public lotteryId;
