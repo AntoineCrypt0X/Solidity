@@ -5,7 +5,7 @@ import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract Staking1m is Ownable, ReentrancyGuard {
+contract Staking is Ownable, ReentrancyGuard {
     // ============= VARIABLES ============
 
     // Contract address of the staked token
