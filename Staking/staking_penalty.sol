@@ -33,7 +33,7 @@ contract StakingPenalty is Ownable, ReentrancyGuard {
 
     constructor(address _stakingToken, uint256 _MIN_AMOUNT_STAKE, uint256 _yield, uint256 _periodStaking) Ownable(msg.sender) {
         stakingToken = IERC20(_stakingToken);
-        MIN_AMOUNT_STAKE = _MIN_AMOUNT_STAKE; // 1 token
+        MIN_AMOUNT_STAKE = _MIN_AMOUNT_STAKE;
         yield= _yield;
         period= _periodStaking * 1 days;
         active=true;
