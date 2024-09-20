@@ -21,6 +21,8 @@ contract StakingPenalty is Ownable, ReentrancyGuard {
     uint public period;
     // acivated ?
     bool private active;
+    // Fee collecting address from the "withdraw immediately"
+    address public FEE_COLLECTING_WALLET;
 
     // User address => start staking date
     mapping(address => uint) public userStartStakePeriod;
@@ -31,12 +33,13 @@ contract StakingPenalty is Ownable, ReentrancyGuard {
     // User address => rewards to be claimed
     mapping(address => uint) public rewards;
 
-    constructor(address _stakingToken, uint256 _MIN_AMOUNT_STAKE, uint256 _yield, uint256 _periodStaking) Ownable(msg.sender) {
+    constructor(address _stakingToken, uint256 _MIN_AMOUNT_STAKE, uint256 _yield, uint256 _periodStaking, address _FEE_COLLECTING_WALLET) Ownable(msg.sender) {
         stakingToken = IERC20(_stakingToken);
         MIN_AMOUNT_STAKE = _MIN_AMOUNT_STAKE;
         yield= _yield;
         period= _periodStaking * 1 days;
         active=true;
+        FEE_COLLECTING_WALLET=_FEE_COLLECTING_WALLET;
     }
 
     // ============= MODIFIERS ============
@@ -85,6 +88,10 @@ contract StakingPenalty is Ownable, ReentrancyGuard {
         return true;
     }
 
+    function changeFeeCollectingWallet(address _newWallet) public onlyOwner {
+        FEE_COLLECTING_WALLET = _newWallet;
+    }
+
     // staking
     function stake( uint _amount) external isActive updateReward(msg.sender) nonReentrant {
         require(_amount >= MIN_AMOUNT_STAKE, "Minimum amount needed");
@@ -110,6 +117,7 @@ contract StakingPenalty is Ownable, ReentrancyGuard {
         totalSupply -= balance_user;
         //Penalty of 10% on the deposit if the user claims before the end of his staking period
         if(block.timestamp<userEndStakePeriod[msg.sender]){
+            stakingToken.transfer(FEE_COLLECTING_WALLET,balance_user * 10 / 100);
             balance_user=balance_user*90/100;
         }
         uint256 _amount = balance_user + reward;
