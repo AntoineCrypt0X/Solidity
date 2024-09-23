@@ -18,7 +18,7 @@ contract Staking is Ownable, ReentrancyGuard {
     uint public yield;
     // duration
     uint public period;
-
+    // staking status
     bool private active;
 
     // User address => start staking date
