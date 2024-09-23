@@ -87,7 +87,7 @@ contract StakingRewards is Ownable, ReentrancyGuard {
         if (now_time>EndStakingDate) {
             now_time=EndStakingDate;
         }
-        return rewards[_user]+(balanceOf[_user])* (now_time-userStartStakePeriod[_user])*yield/(100*31536000);
+        return rewards[_user]+(balanceOf[_user]* (now_time-userStartStakePeriod[_user])*yield/(100*31536000));
     }
 
     function claimRewardsAndWithdrawal() external checkAfterEndDate nonReentrant updateReward(msg.sender) {
