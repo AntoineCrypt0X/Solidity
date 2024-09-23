@@ -20,7 +20,6 @@ contract StakingRewards is Ownable, ReentrancyGuard {
     uint public yield;
     // Timestamp of when the rewards start
     uint256 public StartStakingDate;
-
     // Timestamp of when the rewards finish
     uint256 public EndStakingDate;
 
