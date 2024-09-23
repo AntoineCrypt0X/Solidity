@@ -111,9 +111,9 @@ contract StakingPenalty is Ownable, ReentrancyGuard {
     }
 
     function claimRewardsAndWithdrawal() external updateReward(msg.sender) nonReentrant {
+        uint256 reward = rewards[msg.sender];
         uint256 balance_user = balanceOf[msg.sender];
         require( balance_user > 0,"Nothing to withdraw");
-        uint256 reward = getRewardEarn(msg.sender);
         totalSupply -= balance_user;
         //Penalty of 10% on the deposit if the user claims before the end of his staking period
         if(block.timestamp<userEndStakePeriod[msg.sender]){
