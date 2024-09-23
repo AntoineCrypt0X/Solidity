@@ -93,8 +93,8 @@ contract StakingRewards is Ownable, ReentrancyGuard {
     function claimRewardsAndWithdrawal() external checkAfterEndDate nonReentrant updateReward(msg.sender) {
         uint256 reward = rewards[msg.sender];
         uint256 balance_user = balanceOf[msg.sender];
+        require( balance_user > 0,"Nothing to withdraw");
         uint256 _amount = balance_user + reward;
-        require( _amount > 0,"Nothing to withdraw");
         balanceOf[msg.sender]= 0;
         rewards[msg.sender]=0;
         totalSupply -= balance_user;
