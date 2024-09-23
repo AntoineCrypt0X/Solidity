@@ -107,7 +107,7 @@ contract StakingPenalty is Ownable, ReentrancyGuard {
         if (now_time>userEndStakePeriod[_user]) {
             now_time=userEndStakePeriod[_user];
         }
-        return balanceOf[_user]*(now_time-userStartStakePeriod[_user])*yield/(100*31536000);
+        return rewards[_user]+(balanceOf[_user]* (now_time-userStartStakePeriod[_user])*yield/(100*31536000));
     }
 
     function claimRewardsAndWithdrawal() external updateReward(msg.sender) nonReentrant {
