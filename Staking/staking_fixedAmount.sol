@@ -99,9 +99,9 @@ contract Staking is Ownable, ReentrancyGuard {
         require( balance_user > 0,"Nothing to withdraw");
         uint256 reward = getRewardEarn(msg.sender);
         uint256 _amount = balance_user + reward;
-        stakingToken.transfer(msg.sender,_amount);
         balanceOf[msg.sender]= 0;
         totalSupply -= balance_user;
+        stakingToken.transfer(msg.sender,_amount);
     }
 
     function return_To_Owner(uint256 _amount)  external onlyOwner {
