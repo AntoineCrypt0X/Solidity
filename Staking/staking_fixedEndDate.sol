@@ -64,7 +64,7 @@ contract StakingRewards is Ownable, ReentrancyGuard {
             if (now_time>EndStakingDate) {
                 now_time=EndStakingDate;
             }
-            rewards[_account]=rewards[_account]+(balanceOf[_account])* (now_time-userStartStakePeriod[_account])*yield/(100*31536000);
+            rewards[_account]=rewards[_account]+(balanceOf[_account]* (now_time-userStartStakePeriod[_account])*yield/(100*31536000));
         }
         _;
     }
