@@ -76,14 +76,13 @@ contract Staking is Ownable, ReentrancyGuard {
     }
 
     // staking
-    function stake( uint _amount) external isActive nonReentrant {
+    function stake() external isActive nonReentrant {
         require(balanceOf[msg.sender] == 0,"You can stake only once");
-        require(_amount == AMOUNT_STAKE, "Not the right amount");
         userStartStakePeriod[msg.sender]=block.timestamp;
         userEndStakePeriod[msg.sender]=userStartStakePeriod[msg.sender]+period;
-        stakingToken.transferFrom(msg.sender, address(this), _amount);
-        balanceOf[msg.sender] += _amount;
-        totalSupply += _amount;
+        stakingToken.transferFrom(msg.sender, address(this), AMOUNT_STAKE);
+        balanceOf[msg.sender] += AMOUNT_STAKE;
+        totalSupply += AMOUNT_STAKE;
     }
 
     function getRewardEarn(address _user) public view returns (uint256){
