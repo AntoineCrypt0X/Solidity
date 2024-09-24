@@ -5,7 +5,7 @@ import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-//staking with a function that allows the user to initialize the withdrawal with 1 week of grace period. 10% of penalty to withdraw immediately
+//Each user stakes for a specified period. 10% penalty on their deposit if they withdraw before the end of the period
 contract StakingPenalty is Ownable, ReentrancyGuard {
     // ============= VARIABLES ============
 
@@ -57,6 +57,11 @@ contract StakingPenalty is Ownable, ReentrancyGuard {
         _;
     }
 
+    modifier checkDateRewardPeriod() {
+      require ( block.timestamp < MAX_DATE_REWARD_PERIOD) ;
+       _ ;
+    }
+
     modifier updateReward(address _user) {
         if (_user != address(0)) {
             uint256 now_time=block.timestamp;
@@ -95,7 +100,7 @@ contract StakingPenalty is Ownable, ReentrancyGuard {
     }
 
     // staking
-    function stake( uint _amount) external isActive updateReward(msg.sender) nonReentrant {
+    function stake( uint _amount) external isActive updateReward(msg.sender) nonReentrant checkDateRewardPeriod {
         require(totalSupply + _amount <= MAX_NUM_OF_TOKENS_IN_POOL,"Maximum number of tokens staked has been reached!");
         userStartStakePeriod[msg.sender]=block.timestamp;
         stakingToken.transferFrom(msg.sender, address(this), _amount);
@@ -103,7 +108,6 @@ contract StakingPenalty is Ownable, ReentrancyGuard {
         totalSupply += _amount;
     }
 
-    // initialize withdraw. 1 week of grace period
     function initializeWithdrawal() external nonReentrant
     {
         require(balanceOf[msg.sender] > 0, "Nothing to withdraw");
@@ -119,7 +123,6 @@ contract StakingPenalty is Ownable, ReentrancyGuard {
         return rewards[_user]+ (balanceOf[_user]*(now_time-userStartStakePeriod[_user])*yield/(100*31536000));
     }
 
-    // withdraw after the grace period ends
     function claimRewardsAndWithdrawal() external updateReward(msg.sender) nonReentrant {
         require(withdrawalInitiated[msg.sender] > 0,"Withdrawal not initiated");
         require(block.timestamp >= withdrawalInitiated[msg.sender] + GRACE_PERIOD,"Grace period not yet passed");
@@ -131,7 +134,7 @@ contract StakingPenalty is Ownable, ReentrancyGuard {
         totalSupply -= balance_user;
         stakingToken.transfer(msg.sender,_amount);
     }
-    // withdraw immediately: 10% of penalty
+
     function withdrawImmediately() external updateReward(msg.sender) nonReentrant {
         require(withdrawalInitiated[msg.sender] > 0,"Withdrawal not initiated");
         uint256 balance_user = balanceOf[msg.sender];
