@@ -5,7 +5,7 @@ import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-//Each user stakes for a specified period. 10% penalty on their deposit if they withdraw before the end of the period
+//staking with a function that allows the user to initialize the withdrawal with 1 week of grace period. 10% of penalty to withdraw immediately
 contract StakingPenalty is Ownable, ReentrancyGuard {
     // ============= VARIABLES ============
 
