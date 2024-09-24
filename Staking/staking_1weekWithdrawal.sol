@@ -103,6 +103,7 @@ contract StakingPenalty is Ownable, ReentrancyGuard {
         totalSupply += _amount;
     }
 
+    // initialize withdraw. 1 week of grace period
     function initializeWithdrawal() external nonReentrant
     {
         require(balanceOf[msg.sender] > 0, "Nothing to withdraw");
@@ -118,6 +119,7 @@ contract StakingPenalty is Ownable, ReentrancyGuard {
         return rewards[_user]+ (balanceOf[_user]*(now_time-userStartStakePeriod[_user])*yield/(100*31536000));
     }
 
+    // withdraw after the grace period ends
     function claimRewardsAndWithdrawal() external updateReward(msg.sender) nonReentrant {
         require(withdrawalInitiated[msg.sender] > 0,"Withdrawal not initiated");
         require(block.timestamp >= withdrawalInitiated[msg.sender] + GRACE_PERIOD,"Grace period not yet passed");
@@ -129,7 +131,7 @@ contract StakingPenalty is Ownable, ReentrancyGuard {
         totalSupply -= balance_user;
         stakingToken.transfer(msg.sender,_amount);
     }
-
+    // withdraw immediately: 10% of penalty
     function withdrawImmediately() external updateReward(msg.sender) nonReentrant {
         require(withdrawalInitiated[msg.sender] > 0,"Withdrawal not initiated");
         uint256 balance_user = balanceOf[msg.sender];
