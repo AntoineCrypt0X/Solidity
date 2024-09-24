@@ -12,7 +12,7 @@ contract Staking is Ownable, ReentrancyGuard {
     IERC20 public immutable stakingToken;
     // Total staked
     uint public totalSupply;
-    //amount that people can stake
+    //fixed amount that people can stake
     uint public AMOUNT_STAKE;
     // APR yield
     uint public yield;
