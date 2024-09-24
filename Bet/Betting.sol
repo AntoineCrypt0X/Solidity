@@ -2,7 +2,7 @@
 pragma solidity 0.8.20;
 
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
-import "./IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 // Betting contract. Users bet on 1 or more proposed teams. Users who bet on the winning team share the “losing pool” in proportion to their share of the winning pool.
@@ -177,7 +177,7 @@ contract bettest is Ownable, ReentrancyGuard {
 
         betToken.transfer(walletTeam,_userReward*percentageTeam/100);
         betToken.transfer(walletCharity,_userReward*percentageCharity/100);
-        betToken._burn(_userReward*percentageBurn/100);
+        betToken._burn(_userReward*percentageBurn/100); //burn function must be visible in the ERC20 contract
         betToken.transfer(msg.sender,_userReward*(100-percentageTeam-percentageCharity-percentageBurn)/100);
         betToken.transfer(msg.sender,_userAmountBetWin);
 
