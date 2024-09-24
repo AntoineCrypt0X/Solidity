@@ -7,7 +7,7 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-
+// Referral = NFT holder. NFT price: 1 ether. Commission split 90%/10% between referral and contract owner
 contract NFT_referral_payable is Ownable, ERC721, ERC721Enumerable, ERC721URIStorage {
 
     using Counters for Counters.Counter;
