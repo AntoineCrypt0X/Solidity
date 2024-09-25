@@ -63,13 +63,14 @@ contract bettest is Ownable, ReentrancyGuard {
 
     constructor(address token,  uint256 _minimumBet, address _walletTeam, address _walletCharity, uint256 _numberTeams, string[] memory teamName, string[] memory betDescription, uint256 _EndDate) Ownable(msg.sender) {
         myToken = Token20(token);
+        require(_numberTeams>=2);
         require(teamName.length==_numberTeams);
         require(betDescription.length==2);
         minimumBet = _minimumBet;
         walletTeam=_walletTeam;
         walletCharity=_walletCharity;
         numberTeams=_numberTeams;
-        for(uint i=0;i<teamName.length;i++){
+        for(uint i=1;i<=teamName.length;i++){
             teamInfo[i].name=teamName[i];
         }
         description=betDescription[0];
@@ -155,12 +156,12 @@ contract bettest is Ownable, ReentrancyGuard {
 
     function getreimbursement() nonReentrant checkStatus("cancelled") public {
         uint256 _userAmountBet;
-        for(uint i=0;i<numberTeams;i++){
+        for(uint256 i=1;i<=numberTeams;i++){
             _userAmountBet += user_team_bet[msg.sender][i];
         }
         require(_userAmountBet>0,"nothing to get");
         myToken.transfer(msg.sender,_userAmountBet);
-        for(uint i=0;i<numberTeams;i++){
+        for(uint256 i=1;i<=numberTeams;i++){
             delete user_team_bet[msg.sender][i];
         }
 
@@ -172,7 +173,7 @@ contract bettest is Ownable, ReentrancyGuard {
         require(_userReward>0,"nothing to get");
         uint256 _userAmountBetWin = user_team_bet[msg.sender][teamWinner];
 
-        for(uint i=0;i<numberTeams;i++){
+        for(uint256 i=1;i<=numberTeams;i++){
             delete user_team_bet[msg.sender][i];
         }
 
