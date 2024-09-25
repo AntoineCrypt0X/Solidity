@@ -9,7 +9,8 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 contract bettest is Ownable, ReentrancyGuard {
     // ============= VARIABLES ============
 
-    // Contract address of the token
+    // Contract address of the staked token
+
     Token20 public myToken;
     
     //Minimum bet
@@ -112,7 +113,7 @@ contract bettest is Ownable, ReentrancyGuard {
 
     // ============= FUNCTIONS ============
 
-    function set_initial_bet(uint256 _nbtokens) public  {
+    function set_initial_bet(uint256 _nbtokens) onlyOwner public  {
         for(uint256 i=1;i<=numberTeams;i++){
             teamInfo[i].totalamountBet=_nbtokens;
             totalBet+=_nbtokens;
@@ -133,13 +134,13 @@ contract bettest is Ownable, ReentrancyGuard {
         emit Bet(msg.sender, _teamSelected, numberTokens);
     }
 
-    function set_winner(uint256 _teamWinner) checkAfterEndDate public {
+    function set_winner(uint256 _teamWinner) onlyOwner checkAfterEndDate public {
         require(_teamWinner>=1 && _teamWinner<=numberTeams,"invalid team");
         teamWinner=_teamWinner;
         betStatus="claim";
     }
 
-    function cancel() checkNotStatus("claim") public {
+    function cancel() onlyOwner checkNotStatus("claim") public {
         betStatus="cancelled";
     }
 
@@ -184,7 +185,7 @@ contract bettest is Ownable, ReentrancyGuard {
         emit Claim(msg.sender, _userReward);
     }
 
-    function return_To_Owner(uint256 _amount)  external  {
+    function return_To_Owner(uint256 _amount) onlyOwner external  {
         myToken.transfer(msg.sender, _amount);
     }
 
