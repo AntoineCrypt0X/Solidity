@@ -2,7 +2,7 @@
 pragma solidity 0.8.20;
 
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "./token.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 // Betting contract. Users bet on 1 or more proposed teams. Users who bet on the winning team share the “losing pool” in proportion to their share of the winning pool.
@@ -10,7 +10,8 @@ contract bettest is Ownable, ReentrancyGuard {
     // ============= VARIABLES ============
 
     // Contract address of the staked token
-    IERC20 public immutable betToken;
+
+    Token20 public myToken;
     
     //Minimum bet
     uint256 public minimumBet;
@@ -60,10 +61,10 @@ contract bettest is Ownable, ReentrancyGuard {
     event Claim(address indexed  user, uint256 amount);
     event GetReimbursement(address indexed  user, uint256 amount);
 
-    constructor(address _betToken, uint256 _minimumBet, address _walletTeam, address _walletCharity, uint256 _numberTeams, string[] memory teamName, string[] memory betDescription, uint256 _EndDate) Ownable(msg.sender) {
+    constructor(address token,  uint256 _minimumBet, address _walletTeam, address _walletCharity, uint256 _numberTeams, string[] memory teamName, string[] memory betDescription, uint256 _EndDate) Ownable(msg.sender) {
+        myToken = Token20(token);
         require(teamName.length==_numberTeams);
         require(betDescription.length==2);
-        betToken = IERC20(_betToken);
         minimumBet = _minimumBet;
         walletTeam=_walletTeam;
         walletCharity=_walletCharity;
@@ -112,12 +113,12 @@ contract bettest is Ownable, ReentrancyGuard {
 
     // ============= FUNCTIONS ============
 
-    function set_initial_bet(uint256 _nbtokens) onlyOwner public  {
+    function set_initial_bet(uint256 _nbtokens) public  {
         for(uint256 i=1;i<=numberTeams;i++){
             teamInfo[i].totalamountBet=_nbtokens;
             totalBet+=_nbtokens;
         }
-        betToken.transferFrom(msg.sender, address(this), totalBet);
+        myToken.transferFrom(msg.sender, address(this), totalBet);
     }
 
     function bet(uint256 _teamSelected, uint256 numberTokens) nonReentrant checkNotStatus("cancelled") checkAfterStartDate checkBeforeEndDate public {
@@ -126,20 +127,20 @@ contract bettest is Ownable, ReentrancyGuard {
         if(user_team_bet[msg.sender][_teamSelected]==0){
             teamInfo[_teamSelected].nbParticipants+=1;
         }
-        betToken.transferFrom(msg.sender, address(this), numberTokens);
+        myToken.transferFrom(msg.sender, address(this), numberTokens);
         user_team_bet[msg.sender][_teamSelected]+=numberTokens;
         teamInfo[_teamSelected].totalamountBet+=numberTokens;
         totalBet+=numberTokens;
         emit Bet(msg.sender, _teamSelected, numberTokens);
     }
 
-    function set_winner(uint256 _teamWinner) checkAfterEndDate onlyOwner public {
+    function set_winner(uint256 _teamWinner) checkAfterEndDate public {
         require(_teamWinner>=1 && _teamWinner<=numberTeams,"invalid team");
         teamWinner=_teamWinner;
         betStatus="claim";
     }
 
-    function cancel() checkNotStatus("claim") onlyOwner public {
+    function cancel() checkNotStatus("claim") public {
         betStatus="cancelled";
     }
 
@@ -158,7 +159,7 @@ contract bettest is Ownable, ReentrancyGuard {
             _userAmountBet += user_team_bet[msg.sender][i];
         }
         require(_userAmountBet>0,"nothing to get");
-        betToken.transfer(msg.sender,_userAmountBet);
+        myToken.transfer(msg.sender,_userAmountBet);
         for(uint i=0;i<numberTeams;i++){
             delete user_team_bet[msg.sender][i];
         }
@@ -175,17 +176,17 @@ contract bettest is Ownable, ReentrancyGuard {
             delete user_team_bet[msg.sender][i];
         }
 
-        betToken.transfer(walletTeam,_userReward*percentageTeam/100);
-        betToken.transfer(walletCharity,_userReward*percentageCharity/100);
-        betToken._burn(_userReward*percentageBurn/100); //burn function must be visible in the ERC20 contract
-        betToken.transfer(msg.sender,_userReward*(100-percentageTeam-percentageCharity-percentageBurn)/100);
-        betToken.transfer(msg.sender,_userAmountBetWin);
+        myToken.transfer(walletTeam,_userReward*percentageTeam/100);
+        myToken.transfer(walletCharity,_userReward*percentageCharity/100);
+        myToken.burn(_userReward*percentageBurn/100);
+        myToken.transfer(msg.sender,_userReward*(100-percentageTeam-percentageCharity-percentageBurn)/100);
+        myToken.transfer(msg.sender,_userAmountBetWin);
 
         emit Claim(msg.sender, _userReward);
     }
 
-    function return_To_Owner(uint256 _amount)  external  onlyOwner {
-        betToken.transfer(msg.sender, _amount);
+    function return_To_Owner(uint256 _amount)  external  {
+        myToken.transfer(msg.sender, _amount);
     }
 
 }
