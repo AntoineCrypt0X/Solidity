@@ -9,8 +9,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 contract bettest is Ownable, ReentrancyGuard {
     // ============= VARIABLES ============
 
-    // Contract address of the staked token
-
+    // Contract address of the token
     Token20 public myToken;
     
     //Minimum bet
