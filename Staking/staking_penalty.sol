@@ -127,7 +127,7 @@ contract StakingPenalty is Ownable, ReentrancyGuard {
         stakingToken.transfer(msg.sender,_amount);
     }
 
-    function feedRewards(uint _amount) external onlyOwner {
+    function supplyRewards(uint _amount) external onlyOwner {
         require(_amount > 0, "amount must be greater than 0");
         bool success = stakingToken.transferFrom(msg.sender,address(this),_amount);
         require(success, "transfer was not successfull");
