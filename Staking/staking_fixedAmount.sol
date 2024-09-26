@@ -20,6 +20,8 @@ contract Staking is Ownable, ReentrancyGuard {
     uint public period;
     // staking status
     bool private active;
+    // deposit rewards
+    uint public deposit_reward;
 
     // User address => start staking date
     mapping(address => uint) public userStartStakePeriod;
@@ -103,7 +105,16 @@ contract Staking is Ownable, ReentrancyGuard {
         stakingToken.transfer(msg.sender,_amount);
     }
 
+    function feedRewards(uint _amount) external onlyOwner {
+        require(_amount > 0, "amount must be greater than 0");
+        bool success = stakingToken.transferFrom(msg.sender,address(this),_amount);
+        require(success, "transfer was not successfull");
+        deposit_reward+=_amount;
+    }
+
     function return_To_Owner(uint256 _amount)  external onlyOwner {
+        require(deposit_reward>=_amount);
+        deposit_reward-=_amount;
         stakingToken.transfer(msg.sender, _amount);
     }
 
