@@ -186,8 +186,4 @@ contract bettest is Ownable, ReentrancyGuard {
         emit Claim(msg.sender, _userReward);
     }
 
-    function return_To_Owner(uint256 _amount) onlyOwner external  {
-        myToken.transfer(msg.sender, _amount);
-    }
-
 }
