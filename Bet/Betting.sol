@@ -145,10 +145,9 @@ contract bettest is Ownable, ReentrancyGuard {
     }
 
     function getUserReward(address _user) checkStatus("claim") checkAfterEndDate public view returns (uint256){
-        uint256 _userAmountBetWin = user_team_bet[_user][teamWinner];
+        uint256 _userAmountBetWinner = user_team_bet[_user][teamWinner];
         uint256 _teamWinnerTotalBet = teamInfo[teamWinner].totalamountBet;
-        uint256 _shareUser = _userAmountBetWin/_teamWinnerTotalBet;
-        uint256 _rewardUser = (totalBet-_teamWinnerTotalBet)*_shareUser;
+        uint256 _rewardUser = ((totalBet-_teamWinnerTotalBet)*_userAmountBetWinner)/_teamWinnerTotalBet;
 
         return  _rewardUser;
     }
