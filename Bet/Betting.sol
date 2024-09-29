@@ -59,6 +59,7 @@ contract bettest is Ownable, ReentrancyGuard {
     event Bet(address indexed  user, uint256 _teamSelected, uint256 amount);
     event Claim(address indexed  user, uint256 amount);
     event GetReimbursement(address indexed  user, uint256 amount);
+    event SetWinner(uint256 winner);
 
     constructor(address token,  uint256 _minimumBet, address _walletTeam, address _walletCharity, uint256 _numberTeams, string[] memory teamName, string[] memory betDescription, uint256 _EndDate) Ownable(msg.sender) {
         myToken = Token20(token);
@@ -138,6 +139,7 @@ contract bettest is Ownable, ReentrancyGuard {
         require(_teamWinner>=1 && _teamWinner<=numberTeams,"invalid team");
         teamWinner=_teamWinner;
         betStatus="claim";
+        emit SetWinner(_Winner);
     }
 
     function cancel() onlyOwner checkNotStatus("claim") public {
