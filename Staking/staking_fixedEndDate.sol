@@ -5,6 +5,7 @@ import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
+// staking with an end date on which deposits are no longer permitted
 contract StakingRewards is Ownable, ReentrancyGuard {
     // ============= VARIABLES ============
 
