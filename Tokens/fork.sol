@@ -4,6 +4,7 @@ pragma solidity 0.8.20;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
+//Users send to the smart contract the old token and receive a certain amount of the new token according to a coefficient
 contract AirDrop is Ownable {
 
     // Contract address of the old token
