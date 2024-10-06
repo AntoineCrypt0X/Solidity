@@ -5,7 +5,7 @@ import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-
+// Whitelist a list of addresses that will claim over 1000 days a personal amount
 contract Claim is Ownable, ReentrancyGuard {
 
     // Contract address of the token
