@@ -5,6 +5,7 @@ import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
+// Each user can stake a specified amount of tokens
 contract Staking is Ownable, ReentrancyGuard {
     // ============= VARIABLES ============
 
