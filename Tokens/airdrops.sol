@@ -4,6 +4,7 @@ pragma solidity 0.8.20;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
+// Airdrop to a list a address a certain amount
 contract AirDrop is Ownable {
 
     // Contract address of the airdrop token
