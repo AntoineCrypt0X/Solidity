@@ -3,6 +3,7 @@ pragma solidity ^0.8.18;
 
 import "./Uniswap.sol";
 
+//Get the exchange rate of a pair
 contract PriceInterface{
 
    IUniswapV2Pair public immutable pair_uniswap;
