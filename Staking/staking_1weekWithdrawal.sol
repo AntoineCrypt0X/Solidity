@@ -136,7 +136,6 @@ contract StakingPenalty is Ownable, ReentrancyGuard {
         require(withdrawalInitiated[msg.sender] > 0,"Withdrawal not initiated");
         require(block.timestamp >= withdrawalInitiated[msg.sender] + GRACE_PERIOD,"Grace period not yet passed");
         uint256 balance_user = balanceOf[msg.sender];
-        require(balance_user > 0,"nothing to withdraw");
         uint256 reward = rewards[msg.sender];
         uint256 _amount = balance_user + reward;
         balanceOf[msg.sender]= 0;
@@ -148,7 +147,6 @@ contract StakingPenalty is Ownable, ReentrancyGuard {
     function withdrawImmediately() external updateReward(msg.sender) nonReentrant {
         require(withdrawalInitiated[msg.sender] > 0,"Withdrawal not initiated");
         uint256 balance_user = balanceOf[msg.sender];
-        require(balance_user > 0,"nothing to withdraw");
         uint256 reward = rewards[msg.sender];
         uint256 _amount = (balance_user * 90 /100) + reward;
         balanceOf[msg.sender]= 0;
