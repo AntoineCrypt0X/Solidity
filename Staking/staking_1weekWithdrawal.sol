@@ -66,10 +66,13 @@ contract StakingPenalty is Ownable, ReentrancyGuard {
 
     modifier updateReward(address _user) {
         if (_user != address(0)) {
-            uint256 reward_endDate=withdrawalInitiated[_user];
-            if (reward_endDate>MAX_DATE_REWARD_PERIOD) {
-                reward_endDate=MAX_DATE_REWARD_PERIOD;
-            } 
+            uint256 now_time=block.timestamp;
+            if (withdrawalInitiated[msg.sender] > 0){
+                now_time=withdrawalInitiated[msg.sender];
+            }
+            if (now_time>MAX_DATE_REWARD_PERIOD) {
+                now_time=MAX_DATE_REWARD_PERIOD;
+            }
             rewards[_user]=rewards[_user]+((balanceOf[_user])* (reward_endDate-userStartStakePeriod[_user])*yield/(100*31536000));
         }
         _;
@@ -133,6 +136,7 @@ contract StakingPenalty is Ownable, ReentrancyGuard {
         require(withdrawalInitiated[msg.sender] > 0,"Withdrawal not initiated");
         require(block.timestamp >= withdrawalInitiated[msg.sender] + GRACE_PERIOD,"Grace period not yet passed");
         uint256 balance_user = balanceOf[msg.sender];
+        require(balance_user > 0,"nothing to withdraw");
         uint256 reward = rewards[msg.sender];
         uint256 _amount = balance_user + reward;
         balanceOf[msg.sender]= 0;
@@ -144,6 +148,7 @@ contract StakingPenalty is Ownable, ReentrancyGuard {
     function withdrawImmediately() external updateReward(msg.sender) nonReentrant {
         require(withdrawalInitiated[msg.sender] > 0,"Withdrawal not initiated");
         uint256 balance_user = balanceOf[msg.sender];
+        require(balance_user > 0,"nothing to withdraw");
         uint256 reward = rewards[msg.sender];
         uint256 _amount = (balance_user * 90 /100) + reward;
         balanceOf[msg.sender]= 0;
