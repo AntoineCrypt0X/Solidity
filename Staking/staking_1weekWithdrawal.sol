@@ -5,7 +5,7 @@ import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-//Staking with a grace period of 1 week for the claim. 10% of penalty if the users withdraw immediately
+//Each user stakes for a specified period. 10% penalty on their deposit if they withdraw before the end of the period
 contract StakingPenalty is Ownable, ReentrancyGuard {
     // ============= VARIABLES ============
 
@@ -66,11 +66,11 @@ contract StakingPenalty is Ownable, ReentrancyGuard {
 
     modifier updateReward(address _user) {
         if (_user != address(0)) {
-            uint256 now_time=block.timestamp;
-            if (now_time>MAX_DATE_REWARD_PERIOD) {
-                now_time=MAX_DATE_REWARD_PERIOD;
+            uint256 reward_endDate=withdrawalInitiated[_user];
+            if (reward_endDate>MAX_DATE_REWARD_PERIOD) {
+                reward_endDate=MAX_DATE_REWARD_PERIOD;
             } 
-            rewards[_user]=rewards[_user]+((balanceOf[_user])* (now_time-userStartStakePeriod[_user])*yield/(100*31536000));
+            rewards[_user]=rewards[_user]+((balanceOf[_user])* (reward_endDate-userStartStakePeriod[_user])*yield/(100*31536000));
         }
         _;
     }
@@ -104,6 +104,7 @@ contract StakingPenalty is Ownable, ReentrancyGuard {
     // staking
     function stake( uint _amount) external isActive updateReward(msg.sender) nonReentrant checkDateRewardPeriod {
         require(totalSupply + _amount <= MAX_NUM_OF_TOKENS_IN_POOL,"Maximum number of tokens staked has been reached!");
+        require(withdrawalInitiated[msg.sender] == 0,"Withdrawal initiated");
         userStartStakePeriod[msg.sender]=block.timestamp;
         stakingToken.transferFrom(msg.sender, address(this), _amount);
         balanceOf[msg.sender] += _amount;
@@ -119,6 +120,9 @@ contract StakingPenalty is Ownable, ReentrancyGuard {
 
     function getRewardEarn(address _user) public view returns (uint256){
         uint256 now_time=block.timestamp;
+        if (withdrawalInitiated[msg.sender] > 0){
+            now_time=withdrawalInitiated[msg.sender];
+        }
         if (now_time>MAX_DATE_REWARD_PERIOD) {
             now_time=MAX_DATE_REWARD_PERIOD;
         } 
