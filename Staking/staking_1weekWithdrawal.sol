@@ -73,7 +73,7 @@ contract StakingPenalty is Ownable, ReentrancyGuard {
             if (now_time>MAX_DATE_REWARD_PERIOD) {
                 now_time=MAX_DATE_REWARD_PERIOD;
             }
-            rewards[_user]=rewards[_user]+((balanceOf[_user])* (reward_endDate-userStartStakePeriod[_user])*yield/(100*31536000));
+            rewards[_user]=rewards[_user]+((balanceOf[_user])* (now_time-userStartStakePeriod[_user])*yield/(100*31536000));
         }
         _;
     }
