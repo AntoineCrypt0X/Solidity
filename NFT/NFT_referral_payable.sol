@@ -72,7 +72,7 @@ contract NFT_referral_payable is Ownable, ERC721, ERC721Enumerable, ERC721URISto
         }
         return listParents;
     }
-
+    // User has to be whitelisted and enter a valid referral
     function safeMint(address input_referral, string memory username) payable public {
         require(msg.value== NFT_price,"wrong value sent");
         require(whitelist_address[msg.sender],"Address not whitelisted");
