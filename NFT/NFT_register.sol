@@ -35,6 +35,7 @@ contract NFT_registration is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable
         //1 claim per wallet
         require(minted_Wallets[msg.sender]<1,"exceeds max per wallet");
         require(bytes(username).length<=20 && bytes(username).length>2,"username invalid");
+        require(username_user[username]==address(0),"username already choosen");
         uint256 tokenId = _tokenIdCounter.current();
         _safeMint(msg.sender, tokenId);
         minted_Wallets[msg.sender]++;
