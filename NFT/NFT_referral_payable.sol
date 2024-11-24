@@ -36,6 +36,7 @@ contract NFT_referral_payable is Ownable, ERC721, ERC721Enumerable, ERC721URISto
     constructor(string memory _ipfs) Ownable(msg.sender) ERC721("NFT Collection Name", "Ticker") {
         IPFS_URI=_ipfs;
         _safeMint(msg.sender, _tokenIdCounter.current());
+        whitelist_address[msg.sender]=True;
         _tokenIdCounter.increment();
         NFT_price = 1 ether; // 1 ether
         max_levels_referral=3;
