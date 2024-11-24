@@ -25,7 +25,7 @@ contract NFT_registration is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable
     event Add_list_IPFS(string[] _ipfs);
     event Lower_Count_IPFS(uint256 _count);
 
-    constructor() ERC721("LUCKIFY NFT Registration", "FLCKY") Ownable(msg.sender) {
+    constructor() ERC721("NFT Collection Name", "Ticker") Ownable(msg.sender) {
         _tokenIdCounter.increment();
     }
 
