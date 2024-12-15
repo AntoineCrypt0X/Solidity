@@ -139,6 +139,7 @@ contract StakingPenalty is Ownable, ReentrancyGuard {
         uint256 reward = rewards[msg.sender];
         uint256 _amount = balance_user + reward;
         balanceOf[msg.sender]= 0;
+        rewards[msg.sender] = 0;
         withdrawalInitiated[msg.sender] = 0;
         totalSupply -= balance_user;
         stakingToken.transfer(msg.sender,_amount);
@@ -150,6 +151,7 @@ contract StakingPenalty is Ownable, ReentrancyGuard {
         uint256 reward = rewards[msg.sender];
         uint256 _amount = (balance_user * 90 /100) + reward;
         balanceOf[msg.sender]= 0;
+        rewards[msg.sender] = 0;
         withdrawalInitiated[msg.sender] = 0;
         totalSupply -= balance_user;
         //Penalty of 10% on the deposit if the user claims before the grace period
