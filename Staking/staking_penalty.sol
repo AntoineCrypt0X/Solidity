@@ -124,6 +124,7 @@ contract StakingPenalty is Ownable, ReentrancyGuard {
         }
         uint256 _amount = balance_user + reward;
         balanceOf[msg.sender]= 0;
+        rewards[msg.sender] = 0;
         stakingToken.transfer(msg.sender,_amount);
     }
 
