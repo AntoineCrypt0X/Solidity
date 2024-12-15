@@ -91,7 +91,7 @@ contract StakingRewards is Ownable, ReentrancyGuard {
         }
         return rewards[_user]+(balanceOf[_user]* (now_time-userStartStakePeriod[_user])*yield/(100*31536000));
     }
-
+    // withdraw all
     function claimRewardsAndWithdrawal() external checkAfterEndDate nonReentrant updateReward(msg.sender) {
         uint256 reward = rewards[msg.sender];
         uint256 balance_user = balanceOf[msg.sender];
@@ -100,6 +100,20 @@ contract StakingRewards is Ownable, ReentrancyGuard {
         balanceOf[msg.sender]= 0;
         rewards[msg.sender]=0;
         totalSupply -= balance_user;
+        stakingToken.transfer(msg.sender,_amount);
+    }
+
+    // withdraw a part
+    function claimRewardsAndWithdrawalv2(uint256 _quantity) external checkAfterEndDate nonReentrant updateReward(msg.sender) {
+        uint256 balance_user = balanceOf[msg.sender];
+        require( balance_user > 0,"Nothing to withdraw");
+        require(balanceOf[msg.sender] >= _quantity, "Quantity exceeds balance!");
+        uint256 reward = rewards[msg.sender];
+        uint256 _amount = _quantity + reward;
+        balanceOf[msg.sender] -= _quantity;
+        rewards[msg.sender]=0;
+        totalSupply -= _quantity;
+        userStartStakePeriod[msg.sender]=block.timestamp;
         stakingToken.transfer(msg.sender,_amount);
     }
 
