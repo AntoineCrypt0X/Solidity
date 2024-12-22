@@ -116,8 +116,7 @@ contract Staking10PercPenalty is Ownable, ReentrancyGuard {
         totalSupply += _amount;
     }
 
-    function initializeWithdrawal() external nonReentrant
-    {
+    function initializeWithdrawal() external nonReentrant{
         require(balanceOf[msg.sender] > 0, "Nothing to withdraw");
         require(withdrawalInitiated[msg.sender] == 0,"Withdrawal already initiated");
         withdrawalInitiated[msg.sender] = block.timestamp;
