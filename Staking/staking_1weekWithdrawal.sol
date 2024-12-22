@@ -123,6 +123,11 @@ contract Staking10PercPenalty is Ownable, ReentrancyGuard {
         withdrawalInitiated[msg.sender] = block.timestamp;
     }
 
+    function getEndGracePeriod(address _user) public view returns (uint256){
+        require(withdrawalInitiated[_user] > 0,"Withdrawal not initiated");
+        return withdrawalInitiated[_user] + GRACE_PERIOD;
+    }
+
     function getRewardEarn(address _user) public view returns (uint256){
         uint256 now_time=block.timestamp;
         if (withdrawalInitiated[msg.sender] > 0){
