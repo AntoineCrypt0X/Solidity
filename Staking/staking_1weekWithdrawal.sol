@@ -7,7 +7,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 
 //Users can stake for as long as they wish. However, to claim their tokens, they must first initiate the claim process and wait for a 1-week grace period. 
 //If they choose to withdraw immediately without waiting, a 10% penalty will be applied to their deposit.
-contract StakingPenalty is Ownable, ReentrancyGuard {
+contract Staking10PercPenalty is Ownable, ReentrancyGuard {
     // ============= VARIABLES ============
 
     // Contract address of the staked token
