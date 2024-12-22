@@ -106,6 +106,7 @@ contract StakingPenalty is Ownable, ReentrancyGuard {
 
     // staking
     function stake( uint _amount) external isActive updateReward(msg.sender) nonReentrant checkDateRewardPeriod {
+        require(_amount > 0, "amount must be greater than 0");
         require(totalSupply + _amount <= MAX_NUM_OF_TOKENS_IN_POOL,"Maximum number of tokens staked has been reached!");
         require(withdrawalInitiated[msg.sender] == 0,"Withdrawal initiated");
         userStartStakePeriod[msg.sender]=block.timestamp;
