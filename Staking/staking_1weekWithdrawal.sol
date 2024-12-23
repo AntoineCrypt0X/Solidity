@@ -153,6 +153,7 @@ contract Staking10PercPenalty is Ownable, ReentrancyGuard {
 
     function withdrawImmediately() external updateReward(msg.sender) nonReentrant {
         require(withdrawalInitiated[msg.sender] > 0,"Withdrawal not initiated");
+        require(block.timestamp < getEndGracePeriod(msg.sender), "use claimRewardsAndWithdrawal function");
         uint256 balance_user = balanceOf[msg.sender];
         uint256 reward = rewards[msg.sender];
         uint256 _amount = (balance_user * 90 /100) + reward;
