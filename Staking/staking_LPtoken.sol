@@ -34,7 +34,7 @@ contract StakingRewards is Ownable, ReentrancyGuard {
     // User address => staked amount
     mapping(address => uint) public balanceOf;
 
-    constructor(address _rewardToken, address _lpToken, uint256 _MAX_NUM_OF_TOKENS_IN_POOL, uint256 _coefficient, uint256 _StartStakingDate,uint256 _periodStaking) Ownable(msg.sender) {
+    constructor(address _rewardToken, address _lpToken, uint256 _MAX_NUM_OF_TOKENS_IN_POOL, uint256 _coefficient, uint256 _StartStakingDate, uint256 _periodStaking) Ownable(msg.sender) {
         rewardToken = IERC20(_rewardToken);
         lpToken = IERC20(_lpToken);
         MAX_NUM_OF_TOKENS_IN_POOL = _MAX_NUM_OF_TOKENS_IN_POOL;
@@ -111,17 +111,18 @@ contract StakingRewards is Ownable, ReentrancyGuard {
         totalSupply -= _quantity;
         // A new staking period starts with the new balance of tokens
         userStartStakePeriod[msg.sender] = block.timestamp;
-        rewardToken.transfer(msg.sender,reward);
-        lpToken.transfer(msg.sender,_quantity);
+        rewardToken.transfer(msg.sender, reward);
+        lpToken.transfer(msg.sender, _quantity);
     }
 
     function supplyRewards(uint256 _amount) external onlyOwner {
         require(_amount > 0, "amount must be greater than 0");
-        bool success = rewardToken.transferFrom(msg.sender,address(this),_amount);
+        bool success = rewardToken.transferFrom(msg.sender,address(this), _amount);
         require(success, "transfer was not successfull");
         deposit_reward += _amount;
     }
 
+    // The Owner has access only to the reward he deposits
     function return_To_Owner(uint256 _amount)  external onlyOwner {
         require(deposit_reward >= _amount);
         deposit_reward -= _amount;
