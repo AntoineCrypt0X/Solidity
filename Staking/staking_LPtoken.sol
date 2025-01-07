@@ -10,9 +10,9 @@ import "./IRouter.sol";
 contract StakingRewards is Ownable, ReentrancyGuard {
     // ============= VARIABLES ============
 
-    // Contract address of the reward token
+    // Interface of the reward token
     IERC20 public immutable rewardToken;
-    // Contract address of the LP token
+    // Interface of the LP token
     IERC20 public immutable lpToken;
     // Total staked
     uint public totalSupply;
