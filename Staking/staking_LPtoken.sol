@@ -25,7 +25,7 @@ contract StakingRewards is Ownable, ReentrancyGuard {
     // The timestamp when the reward period ends
     uint256 public EndStakingDate;
     // Owner deposit rewards
-    uint public deposit_reward;
+    uint256 public deposit_reward;
 
     // User address => rewards to be claimed
     mapping(address => uint) public rewards;
@@ -38,9 +38,9 @@ contract StakingRewards is Ownable, ReentrancyGuard {
         rewardToken = IERC20(_rewardToken);
         lpToken = IERC20(_lpToken);
         MAX_NUM_OF_TOKENS_IN_POOL = _MAX_NUM_OF_TOKENS_IN_POOL;
-        coefficient=_coefficient;
-        StartStakingDate=_StartStakingDate;
-        EndStakingDate=StartStakingDate + (_periodStaking * 1 days);
+        coefficient = _coefficient;
+        StartStakingDate = _StartStakingDate;
+        EndStakingDate = StartStakingDate + (_periodStaking * 1 days);
     }
 
     // ============= MODIFIERS ============
@@ -63,11 +63,11 @@ contract StakingRewards is Ownable, ReentrancyGuard {
     modifier updateReward(address _account) {
 
         if (_account != address(0)) {
-            uint256 now_time=block.timestamp;
-            if (now_time>EndStakingDate) {
-                now_time=EndStakingDate;
+            uint256 now_time = block.timestamp;
+            if (now_time > EndStakingDate) {
+                now_time = EndStakingDate;
             }
-            rewards[_account]=rewards[_account]+(balanceOf[_account]* (now_time-userStartStakePeriod[_account])*coefficient/(100*31536000));
+            rewards[_account] = rewards[_account] + (balanceOf[_account] * (now_time-userStartStakePeriod[_account]) * coefficient / (100 * 31536000));
         }
         _;
     }
@@ -78,26 +78,26 @@ contract StakingRewards is Ownable, ReentrancyGuard {
         require(_amount > 0, "amount = 0");
         require(totalSupply + _amount <= MAX_NUM_OF_TOKENS_IN_POOL,"Maximum number of tokens staked has been reached!");
         // Each time the user stakes, the rewards won up to now are saved, and a new staking period starts with more tokens
-        userStartStakePeriod[msg.sender]=block.timestamp;
+        userStartStakePeriod[msg.sender] = block.timestamp;
         lpToken.transferFrom(msg.sender, address(this), _amount);
         balanceOf[msg.sender] += _amount;
         totalSupply += _amount;
     }
 
     function getRewardEarn(address _user) public view returns (uint256){
-        uint256 now_time=block.timestamp;
-        if (now_time>EndStakingDate) {
-            now_time=EndStakingDate;
+        uint256 now_time = block.timestamp;
+        if (now_time > EndStakingDate) {
+            now_time = EndStakingDate;
         }
-        return rewards[_user]+(balanceOf[_user]* (now_time-userStartStakePeriod[_user])*coefficient/(100*31536000));
+        return rewards[_user] + (balanceOf[_user] * (now_time-userStartStakePeriod[_user]) * coefficient / (100 * 31536000));
     }
 
     function WithdrawReward() external checkAfterEndDate nonReentrant updateReward(msg.sender) {
         uint256 reward = rewards[msg.sender];
         require( reward > 0,"Nothing to withdraw");
-        rewards[msg.sender]=0;
+        rewards[msg.sender] = 0;
         // Staking is reinitialized
-        userStartStakePeriod[msg.sender]=block.timestamp;
+        userStartStakePeriod[msg.sender] = block.timestamp;
         rewardToken.transfer(msg.sender, reward);
     }
 
@@ -107,24 +107,24 @@ contract StakingRewards is Ownable, ReentrancyGuard {
         require(balanceOf[msg.sender] >= _quantity, "Quantity exceeds balance!");
         uint256 reward = rewards[msg.sender];
         balanceOf[msg.sender] -= _quantity;
-        rewards[msg.sender]=0;
+        rewards[msg.sender] = 0;
         totalSupply -= _quantity;
         // A new staking period starts with the new balance of tokens
-        userStartStakePeriod[msg.sender]=block.timestamp;
+        userStartStakePeriod[msg.sender] = block.timestamp;
         rewardToken.transfer(msg.sender,reward);
         lpToken.transfer(msg.sender,_quantity);
     }
 
-    function supplyRewards(uint _amount) external onlyOwner {
+    function supplyRewards(uint256 _amount) external onlyOwner {
         require(_amount > 0, "amount must be greater than 0");
         bool success = rewardToken.transferFrom(msg.sender,address(this),_amount);
         require(success, "transfer was not successfull");
-        deposit_reward+=_amount;
+        deposit_reward += _amount;
     }
 
     function return_To_Owner(uint256 _amount)  external onlyOwner {
-        require(deposit_reward>=_amount);
-        deposit_reward-=_amount;
+        require(deposit_reward >= _amount);
+        deposit_reward -= _amount;
         rewardToken.transfer(msg.sender, _amount);
     }
 
