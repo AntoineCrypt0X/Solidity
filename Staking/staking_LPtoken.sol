@@ -77,7 +77,7 @@ contract StakingRewards is Ownable, ReentrancyGuard {
     function stake( uint _amount) external checkAfterStartDate checkBeforeEndDate nonReentrant updateReward(msg.sender) {
         require(_amount > 0, "amount = 0");
         require(totalSupply + _amount <= MAX_NUM_OF_TOKENS_IN_POOL,"Maximum number of tokens staked has been reached!");
-        // Each time the user stakes, the rewards won up to now are saved, and a "new" staking period starts with more tokens
+        // Each time the user stakes, the rewards won up to now are saved, and a new staking period starts with more tokens
         userStartStakePeriod[msg.sender]=block.timestamp;
         lpToken.transferFrom(msg.sender, address(this), _amount);
         balanceOf[msg.sender] += _amount;
@@ -109,7 +109,7 @@ contract StakingRewards is Ownable, ReentrancyGuard {
         balanceOf[msg.sender] -= _quantity;
         rewards[msg.sender]=0;
         totalSupply -= _quantity;
-        // A "new" staking period starts with the new balance of tokens
+        // A new staking period starts with the new balance of tokens
         userStartStakePeriod[msg.sender]=block.timestamp;
         rewardToken.transfer(msg.sender,reward);
         lpToken.transfer(msg.sender,_quantity);
