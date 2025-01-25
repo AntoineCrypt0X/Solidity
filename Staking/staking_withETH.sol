@@ -84,11 +84,12 @@ contract StakingRewards is Ownable, ReentrancyGuard {
         totalSupply += _amount;
     }
 
+    // Tokens are bought through the Uniswap router and sent to the contract. Slippage is on a base of 1000 (ex: 0.5% = 5/1000).
     function stakeWithETH(address _uniswapRouter, uint slippage) external payable checkAfterStartDate checkBeforeEndDate nonReentrant updateReward(msg.sender) {
         require(msg.value > 0, "Must send ETH to buy token");
         IUniswapV2Router router = IUniswapV2Router(_uniswapRouter);
         uint deadline = block.timestamp + 300;
-        uint amountOutMin = getEstimatedTokensForETH(msg.value,_uniswapRouter)[1]*(100-(slippage/1000));
+        uint amountOutMin = getEstimatedTokensForETH(msg.value,_uniswapRouter)[1] * (1000 - slippage)) / 1000;
         uint256 _amount=amountOutMin;
         require(totalSupply + _amount <= MAX_NUM_OF_TOKENS_IN_POOL, "Maximum number of tokens staked has been reached!");
 
